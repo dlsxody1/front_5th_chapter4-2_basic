@@ -132,3 +132,122 @@ Cookie Consent
 | **DOM 접근**  | 가능 (위험)    | 불안정                 | 안전              |
 | **성능 영향** | 큰 블로킹      | 작은 블로킹            | 블로킹 없음       |
 | **사용 사례** | 즉시 실행 필요 | 독립적 스크립트        | DOM 의존 스크립트 |
+
+## font 최적화
+
+### URL 업데이터 및 display=swap
+
+```javascript
+<!-- 기존 -->
+<link href="https://fonts.googleapis.com/css?family=Heebo:300,400,600,700&display=swap" rel="stylesheet" />
+
+<!-- 최적화 후 -->
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;600;700&display=swap" rel="stylesheet" />
+```
+
+- **기존 CSS API**: 구버전으로 비효율적인 폰트 로딩
+- **CSS2 API**: Google이 2019년 출시한 최신 API
+- **장점**: 더 작은 CSS 파일 크기 (20-30% 감소)
+- **개선**: 최적화된 폰트 파일 제공 및 캐싱 향상
+
+#### 문법 변경의 이유
+
+- **기존**: `family=Heebo:300,400,600,700` (쉼표 구분)
+- **신규**: `family=Heebo:wght@300;400;600;700` (세미콜론 구분)
+- **효과**: 브라우저가 더 효율적으로 파싱하여 로딩 속도 향상
+
+### 폰트 프리로드 추가
+
+```html
+<link
+  rel="preload"
+  href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;600;700&display=swap"
+  as="style"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+```
+
+#### 브라우저 우선순위 조정
+
+- **기본 로딩**: 브라우저가 폰트를 낮은 우선순위로 처리
+- **preload 적용**: 폰트를 높은 우선순위 리소스로 변경
+- **결과**: HTML 파싱과 동시에 폰트 다운로드 시작
+
+#### 논블로킹 로딩 전략
+
+- **onload 트릭**: 다운로드 완료 후 자동으로 스타일시트 적용
+- **this.onload=null**: 메모리 누수 방지
+- **렌더링 차단 없음**: HTML 파싱을 중단시키지 않음
+
+### 비동기 폰트로딩
+
+```html
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;600;700&display=swap"
+  />
+</noscript>
+```
+
+#### JavaScript 비활성화 대응
+
+- **프리로드 한계**: JavaScript 기반 로딩 방식
+- **접근성 보장**: JS 비활성화 사용자도 폰트 사용 가능
+- **SEO 최적화**: 검색엔진 크롤러의 안정적인 폰트 로딩
+
+#### Progressive Enhancement 전략
+
+- **기본 동작**: noscript로 기본 폰트 로딩 보장
+- **향상된 경험**: JavaScript 활성화 시 최적화된 로딩
+- **안정성**: 모든 환경에서 일관된 폰트 표시
+
+### 시스템폰트 Fallback
+
+```html
+body { font-family: 'Heebo', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+Roboto, Helvetica, Arial, sans-serif; font-display: swap; }
+```
+
+🔍 FOIT란?
+**FOIT (Flash of Invisible Text)**는 웹폰트 로딩 중에 텍스트가 완전히 보이지 않는 현상을 말합니다.
+
+#### 즉시 텍스트 표시
+
+- **FOIT 완전 제거**: 폰트 로딩 지연 시에도 텍스트 표시
+- **0ms 렌더링**: 시스템 폰트는 즉시 사용 가능
+- **사용자 경험**: 기다림 없는 콘텐츠 소비
+
+#### 플랫폼별 최적화
+
+- **-apple-system**: macOS/iOS 시스템 폰트 (San Francisco)
+- **BlinkMacSystemFont**: 크롬 macOS용 시스템 폰트
+- **Segoe UI**: Windows 10/11 기본 폰트
+- **Roboto**: Android 기본 폰트
+- **범용 fallback**: Helvetica, Arial, sans-serif
+
+### 폰트 로딩 감지 및 FOIT 방지
+
+```javascript
+if ("fonts" in document) {
+  document.fonts.ready.then(function () {
+    document.documentElement.classList.add("fonts-loaded");
+  });
+}
+
+setTimeout(function () {
+  document.documentElement.classList.add("fonts-loaded");
+}, 3000);
+```
+
+#### Font Loading API 활용
+
+- **정확한 감지**: 폰트 로딩 완료 시점을 정확히 파악
+- **상태 관리**: 폰트 로딩 상태에 따른 스타일 적용 가능
+- **Progressive Enhancement**: 점진적으로 타이포그래피 품질 향상
+
+#### 브라우저 호환성 체크
+
+- **if ('fonts' in document)**: Font Loading API 지원 여부 확인
+- **feature detection**: 지원하지 않는 브라우저에서 오류 방지
+- **graceful degradation**: API 미지원 시에도 정상 동작
