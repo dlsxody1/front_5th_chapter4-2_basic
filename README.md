@@ -91,3 +91,20 @@ JPEG 대비 25-30% 작은 파일 크기, 동일한 화질에서 훨씬 빠른 �
 
 /images 에 있던 .jpg 파일들을 webp 형식으로 Covert 하고 교체해줬습니다.
 https://convertio.co/kr/jpg-webp/
+
+### picture 태그의 사용
+
+같은 코드로 모든 상황에서 최적화된 이미지를 제공하고, 각 기기에 맞는 최적 해상도 제공합니다.
+
+```javascript
+///기존
+   <img class="desktop" src="images/Hero_Desktop.webp" />
+      <img class="mobile" src="images/Hero_Mobile.webp" />
+      <img class="tablet" src="images/Hero_Tablet.webp" />
+
+//수정후
+<source media="(min-width: 960px)" srcset="desktop.webp">  <!-- 1440px 이미지 -->
+<source media="(min-width: 576px)" srcset="tablet.webp">   <!-- 768px 이미지 -->
+<img src="mobile.webp" alt="Hero">                         <!-- 375px 이미지 -->
+
+```

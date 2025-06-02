@@ -5,6 +5,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Home - Tech Shop</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css?family=Heebo:300,400,600,700&display=swap"
       rel="stylesheet"
@@ -81,9 +83,30 @@
     </header>
 
     <section class="hero">
-      <img class="desktop" src="images/Hero_Desktop.webp" />
-      <img class="mobile" src="images/Hero_Mobile.webp" />
-      <img class="tablet" src="images/Hero_Tablet.webp" />
+      <picture>
+        <source
+          media="(min-width: 960px)"
+          srcset="images/Hero_Desktop.webp"
+          type="image/webp"
+        />
+        <source media="(min-width: 960px)" srcset="images/Hero_Desktop.jpg" />
+        <source
+          media="(min-width: 576px)"
+          srcset="images/Hero_Tablet.webp"
+          type="image/webp"
+        />
+        <source media="(min-width: 576px)" srcset="images/Hero_Tablet.jpg" />
+        <source srcset="images/Hero_Mobile.webp" type="image/webp" />
+        <img
+          class="desktop"
+          src="images/Hero_Mobile.jpg"
+          alt="Discover our line of VR Headsets"
+          loading="eager"
+          fetchpriority="high"
+          width="1440"
+          height="600"
+        />
+      </picture>
 
       <div class="hero-content">
         <div class="container">
@@ -106,7 +129,17 @@
         <div class="container">
           <div class="product new">
             <div class="product-picture">
-              <img src="images/vr1.webp" alt="product: Penom Case" />
+              <picture>
+                <source srcset="images/vr1.webp" type="image/webp" />
+                <img
+                  src="images/vr1.jpg"
+                  alt="Apple Headset"
+                  loading="eager"
+                  fetchpriority="high"
+                  width="250"
+                  height="250"
+                />
+              </picture>
             </div>
             <div class="product-info">
               <h5 class="categories">Headsets, Apple</h5>
@@ -120,10 +153,17 @@
 
           <div class="product new">
             <div class="product-picture">
-              <img
-                src="images/vr2.webp"
-                alt="product: Noise Cancelling Headphone"
-              />
+              <picture>
+                <source srcset="images/vr2.webp" type="image/webp" />
+                <img
+                  src="images/vr2.jpg"
+                  alt="Playstation Headset"
+                  loading="eager"
+                  fetchpriority="high"
+                  width="250"
+                  height="250"
+                />
+              </picture>
             </div>
             <div class="product-info">
               <h5 class="categories">Headsets, PS</h5>
@@ -137,10 +177,17 @@
 
           <div class="product">
             <div class="product-picture">
-              <img
-                src="images/vr3.webp"
-                alt="product: Canon Digital SLR EOS Rebel T6"
-              />
+              <picture>
+                <source srcset="images/vr3.webp" type="image/webp" />
+                <img
+                  src="images/vr3.jpg"
+                  alt="Oculus Headset"
+                  loading="eager"
+                  fetchpriority="high"
+                  width="250"
+                  height="250"
+                />
+              </picture>
             </div>
             <div class="product-info">
               <h5 class="categories">Headsets, Oculus</h5>
