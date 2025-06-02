@@ -1,82 +1,93 @@
 # Core Web Vitals 기반 성능 최적화 계획
 
-## 🚨 긴급 수정 (Lighthouse 점수 기반)
+## 애니메이션 개선
 
-### 1. Total Blocking Time 개선
+### 개선 이유
 
-- [ ] **메인 스레드 블로킹 연산 제거**: `for (let i = 0; i < 10000000; i++)` 루프 완전 제거
-- [ ] **DOM 조작 최적화**: `displayProducts()` 함수에서 DocumentFragment 사용
-- [ ] **setTimeout 최적화**: `showTopBar()` 함수의 1초 지연을 requestAnimationFrame으로 변경
-- [ ] **이벤트 리스너 배치**: DOMContentLoaded 이후로 이벤트 등록 지연
+메인 스레드 블로킹: 10,000,000번 반복문이 230ms 동안 UI를 완전히 멈춤
+사용자 입력 지연: 버튼 클릭, 스크롤이 즉시 반응하지 않아 사용자 경험 악화
 
-### 2. First Contentful Paint 개선
+### 개선 방법
 
-- [ ] **Critical CSS 인라인화**: Above-the-fold 스타일을 HTML 내부로 이동
-- [ ] **폰트 최적화**: `font-display: swap` 추가 및 폰트 프리로드
-- [ ] **CSS 로딩 순서**: 비중요 CSS를 비동기로 로드
-- [ ] **HTML 압축**: 불필요한 공백 및 주석 제거
+반복문 분할: requestAnimationFrame으로 작업을 프레임별로 나누어 처리
+스로틀링: 스크롤 이벤트에 디바운스 적용하여 불필요한 연산 방지
+비동기 처리: 무거운 계산을 setTimeout으로 지연 실행
 
-### 3. Largest Contentful Paint 개선 (15.2초 → 목표: <2.5초)
+requestAnimationFrame 개념 설명
+🎬 기본 개념
+브라우저 렌더링 사이클
+브라우저는 1초에 60번 (60fps) 화면을 새로 그립니다.
 
-- [ ] **Hero 이미지 최적화**: WebP 포맷 변환 및 적절한 크기 설정
-- [ ] **이미지 프리로드**: Hero 이미지에 `<link rel="preload">` 적용
-- [ ] **제품 이미지 지연 로딩**: Intersection Observer로 viewport 진입 시 로드
+1프레임 = 16.67ms (1000ms ÷ 60fps)
+각 프레임마다: JavaScript 실행 → 스타일 계산 → 레이아웃 → 페인트 → 컴포지트
 
-## 📱 이미지 리소스 최적화
+requestAnimationFrame의 역할
+"다음 프레임이 시작되기 직전에 이 함수를 실행해줘!" 라고 브라우저에게 요청하는 API
 
-### 포맷 및 압축
+### ❌ 기존 방식의 문제점
 
-- [ ] **WebP 변환**: 모든 이미지를 WebP 포맷으로 변환 (fallback: JPEG)
+setTimeout/setInterval 사용 시
 
-### 로딩 전략
+```javascript
+// 문제: 브라우저 렌더링 사이클과 맞지 않음
+setTimeout(() => {
+  // 이 코드가 언제 실행될지 모름
+  // 렌더링 중간에 끼어들 수 있음
+}, 16);
 
-- [ ] **지연 로딩**: 제품 이미지에 `loading="lazy"` 속성 추가
-- [ ] **프리로드 우선순위**: Hero 이미지만 즉시 로드, 나머지는 지연
+// 동기 처리 시
+// 큰 문제: 메인 스레드 완전 점유
+for (let i = 0; i < 10000000; i++) {
+  const temp = Math.sqrt(i) * Math.sqrt(i);
+}
+```
 
-## ⚡ JS/CSS 로딩 최적화
+### 수정된 코드
 
-### JavaScript 최적화
+```javascript
+///100,000번씩 100개 청크로 분할
+//각 청크당 2-3ms → 총 처리 시간은 비슷하지만 매 프레임마다 화면 업데이트
+function heavyCalculationOptimized(
+  totalIterations = 10000000,
+  chunkSize = 100000
+) {
+  return new Promise((resolve) => {
+    let currentIteration = 0;
 
-- [ ] **코드 스플리팅**: `loadProducts()` 함수를 별도 모듈로 분리
-- [ ] **동적 import**: 제품 관련 기능을 필요 시점에 로드
-- [ ] **번들 크기 최소화**: 트리 쉐이킹으로 미사용 코드 제거
-- [ ] **압축 및 난독화**: Terser로 JavaScript 압축
+    function processChunk() {
+      const endIteration = Math.min(
+        currentIteration + chunkSize,
+        totalIterations
+      );
 
-### CSS 최적화
+      for (let i = currentIteration; i < endIteration; i++) {
+        const temp = Math.sqrt(i) * Math.sqrt(i);
+      }
 
-- [ ] **Critical CSS 추출**: Above-the-fold 스타일만 인라인으로 포함
-- [ ] **CSS 청크**: 페이지별 필요한 CSS만 로드
-- [ ] **미사용 CSS 제거**: PurgeCSS로 불필요한 스타일 정리
-- [ ] **CSS 압축**: cssnano로 파일 크기 최소화
+      currentIteration = endIteration;
 
-### 리소스 힌트
+      if (currentIteration < totalIterations) {
+        // 다음 프레임에서 계속 처리 (메인 스레드 해제)
+        requestAnimationFrame(processChunk);
+      } else {
+        console.log("복잡한 가격 계산 완료!");
+        resolve("계산 완료");
+      }
+    }
 
-- [ ] **DNS 프리페치**: `<link rel="dns-prefetch" href="//fakestoreapi.com">`
-- [ ] **프리커넥트**: 중요한 외부 리소스 연결 미리 설정
-- [ ] **모듈 프리로드**: 중요한 JS 모듈 우선 로드
+    processChunk();
+  });
+}
+```
 
-## 🎮 이벤트 관리
+## JPG -> WebP
 
-### 이벤트 위임
+### 개선 이유
 
-- [ ] **제품 버튼 이벤트**: 컨테이너에 단일 이벤트 리스너 등록
-- [ ] **메모리 누수 방지**: 페이지 언로드 시 이벤트 리스너 정리
-- [ ] **패시브 이벤트**: 스크롤/터치 이벤트에 `{passive: true}` 옵션
+이미지가 전체 트래픽의 60-70%를 차지하고, 그에 따라 LCP가 증가하고, SEO 패널티가 생기기 때문에 바꿨습니다.
+JPEG 대비 25-30% 작은 파일 크기, 동일한 화질에서 훨씬 빠른 로딩을 할 수 있다.
 
-### 성능 최적화
+### 개선 방법
 
-- [ ] **디바운싱**: 스크롤/리사이즈 이벤트에 디바운스 적용
-- [ ] **스로틀링**: 자주 발생하는 이벤트 제한
-- [ ] **이벤트 풀링**: 자주 사용되는 이벤트 객체 재사용
-
-## 🎨 애니메이션 최적화
-
-### CSS 애니메이션
-
-- [ ] **transform 활용**: position 대신 transform으로 애니메이션
-- [ ] **GPU 가속**: `will-change` 속성 또는 `transform3d()` 활용
-
-### JavaScript 애니메이션
-
-- [ ] **requestAnimationFrame**: setTimeout 대신 RAF 사용
-- [ ] **배치 업데이트**: DOM 변경사항을 배치로 처리
+/images 에 있던 .jpg 파일들을 webp 형식으로 Covert 하고 교체해줬습니다.
+https://convertio.co/kr/jpg-webp/

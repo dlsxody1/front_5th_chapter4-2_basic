@@ -1,75 +1,108 @@
 async function loadProducts() {
-    const response = await fetch("https://fakestoreapi.com/products");
-    const products = await response.json();
-    displayProducts(products);  
+  const response = await fetch("https://fakestoreapi.com/products");
+  const products = await response.json();
+  displayProducts(products);
 }
 
 function displayProducts(products) {
+  const container = document.querySelector("#all-products .container");
+  const fragment = document.createDocumentFragment();
 
-    // Find the container where products will be displayed
-    const container = document.querySelector('#all-products .container');
+  products.forEach((product, index) => {
+    // Create the main product div
+    const productElement = document.createElement("div");
+    productElement.classList.add("product");
 
-   
-    // Iterate over each product and create the HTML structure safely
-    products.forEach(product => {
-        // Create the main product div
-        const productElement = document.createElement('div');
-        productElement.classList.add('product');
+    // Create the product picture div
+    const pictureDiv = document.createElement("div");
+    pictureDiv.classList.add("product-picture");
+    const img = document.createElement("img");
 
-        // Create the product picture div
-        const pictureDiv = document.createElement('div');
-        pictureDiv.classList.add('product-picture');
-        const img = document.createElement('img');
-        img.src = product.image;
-        img.alt = `product: ${product.title}`;
-        img.width=250;
-        pictureDiv.appendChild(img);
+    if (index < 3) {
+      img.src = product.image;
+      img.loading = "eager";
+    } else {
+      img.src = product.image;
+      img.loading = "lazy";
+    }
 
-        // Create the product info div
-        const infoDiv = document.createElement('div');
-        infoDiv.classList.add('product-info');
+    img.alt = `product: ${product.title}`;
+    img.width = 250;
+    pictureDiv.appendChild(img);
 
-        const category = document.createElement('h5');
-        category.classList.add('categories');
-        category.textContent = product.category;
+    const infoDiv = document.createElement("div");
+    infoDiv.classList.add("product-info");
 
-        const title = document.createElement('h4');
-        title.classList.add('title');
-        title.textContent = product.title;
+    const category = document.createElement("h5");
+    category.classList.add("categories");
+    category.textContent = product.category;
 
-        const price = document.createElement('h3');
-        price.classList.add('price');
-        const priceSpan = document.createElement('span');
-        priceSpan.textContent = `US$ ${product.price}`;
-        price.appendChild(priceSpan);
+    const title = document.createElement("h4");
+    title.classList.add("title");
+    title.textContent = product.title;
 
-        const button = document.createElement('button');
-        button.textContent = 'Add to bag';
+    const price = document.createElement("h3");
+    price.classList.add("price");
+    const priceSpan = document.createElement("span");
+    priceSpan.textContent = `US$ ${product.price}`;
+    price.appendChild(priceSpan);
 
-        // Append elements to the product info div
-        infoDiv.appendChild(category);
-        infoDiv.appendChild(title);
-        infoDiv.appendChild(price);
-        infoDiv.appendChild(button);
+    const button = document.createElement("button");
+    button.textContent = "Add to bag";
 
-        // Append picture and info divs to the main product element
-        productElement.appendChild(pictureDiv);
-        productElement.appendChild(infoDiv);
+    infoDiv.appendChild(category);
+    infoDiv.appendChild(title);
+    infoDiv.appendChild(price);
+    infoDiv.appendChild(button);
 
-        // Append the new product element to the container
-        container.appendChild(productElement);
-    });
+    productElement.appendChild(pictureDiv);
+    productElement.appendChild(infoDiv);
 
-    
+    // DocumentFragment에 추가 (DOM에는 아직 추가 안됨)
+    fragment.appendChild(productElement);
+  });
 
+  // 한 번에 DOM에 추가 (리플로우 최소화)
+  container.appendChild(fragment);
 }
 
+// 무거운 연산을 requestAnimationFrame으로 분할 처리
+function heavyCalculationOptimized(
+  totalIterations = 10000000,
+  chunkSize = 100000
+) {
+  return new Promise((resolve) => {
+    let currentIteration = 0;
 
+    function processChunk() {
+      const endIteration = Math.min(
+        currentIteration + chunkSize,
+        totalIterations
+      );
 
-loadProducts();
+      for (let i = currentIteration; i < endIteration; i++) {
+        const temp = Math.sqrt(i) * Math.sqrt(i);
+      }
 
-// Simulate heavy operation. It could be a complex price calculation.
-for (let i = 0; i < 10000000; i++) {
-    const temp = Math.sqrt(i) * Math.sqrt(i);
+      currentIteration = endIteration;
+
+      if (currentIteration < totalIterations) {
+        requestAnimationFrame(processChunk);
+      } else {
+        resolve("계산 완료");
+      }
+    }
+
+    processChunk();
+  });
 }
 
+async function initializeApp() {
+  // 1. 먼저 제품 로딩
+  await loadProducts();
+
+  // 2. UI가 준비된 후 무거운 계산 시작 (비동기)
+  await heavyCalculationOptimized();
+}
+
+initializeApp();
