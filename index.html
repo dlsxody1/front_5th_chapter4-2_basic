@@ -5,77 +5,36 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Home - Tech Shop</title>
+    <!-- DNS 조회 및 연결 미리 설정 -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <!-- 폰트 비동기 로딩 -->
     <link
       rel="preload"
       href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;600;700&display=swap"
       as="style"
       onload="this.onload=null;this.rel='stylesheet'"
     />
-
-    <noscript>
-      <link
+    <noscript
+      ><link
         rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;600;700&display=swap"
-      />
-    </noscript>
+    /></noscript>
 
-    <!-- Critical CSS 인라인 (폰트 관련) -->
-    <style>
-      /* 폰트 최적화: 시스템 폰트 fallback */
-      body {
-        margin: 0;
-        font-family: "Heebo", -apple-system, BlinkMacSystemFont, "Segoe UI",
-          Roboto, Helvetica, Arial, sans-serif;
-        font-display: swap;
-        padding-top: 80px;
-      }
-
-      /* 헤더 기본 스타일 */
-      header {
-        background-color: #fff;
-        box-shadow: 0 1px 6px 0 rgba(0, 0, 0, 0.15);
-        height: 80px;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        z-index: 1;
-      }
-
-      .container {
-        width: 1440px;
-        max-width: 90%;
-        margin: auto;
-        padding: 0 16px;
-      }
-
-      /* 히어로 섹션 기본 스타일 */
-      .hero {
-        position: relative;
-        overflow: hidden;
-      }
-
-      /* 폰트 로딩 중 스타일 유지 */
-      .font-loading {
-        visibility: hidden;
-      }
-
-      .fonts-loaded {
-        visibility: visible;
-      }
-    </style>
-
-    <!-- CSS 비동기 로딩 -->
+    <link rel="stylesheet" href="/css/styles.css" />
     <link
-      rel="preload"
-      href="/css/styles.css"
-      as="style"
-      onload="this.onload=null;this.rel='stylesheet'"
+      rel="preconnect"
+      as="image"
+      href="images/Hero_Desktop.webp"
+      media="(min-width: 1024px)"
     />
-    <noscript><link rel="stylesheet" href="/css/styles.css" /></noscript>
-
+    <link
+      rel="preconnect"
+      as="image"
+      href="images/Hero_Mobile.webp"
+      media="(max-width: 767px)"
+    />
     <!-- <link rel="stylesheet" type="text/css" href="/css/slick.css"/> -->
     <!-- Google Tag Manager -->
     <script async>
@@ -98,19 +57,26 @@
       type="text/javascript"
       src="//www.freeprivacypolicy.com/public/cookie-consent/4.1.0/cookie-consent.js"
       charset="UTF-8"
+      onload="initCookieConsent()"
     ></script>
     <script defer type="text/javascript" charset="UTF-8">
-      cookieconsent.run({
-        notice_banner_type: "simple",
-        consent_type: "express",
-        palette: "light",
-        language: "en",
-        page_load_consent_levels: ["strictly-necessary"],
-        notice_banner_reject_button_hide: false,
-        preferences_center_close_button_hide: false,
-        page_refresh_confirmation_buttons: false,
-        website_name: "Performance Course",
-      });
+      function initCookieConsent() {
+        if (typeof cookieconsent !== "undefined") {
+          cookieconsent.run({
+            notice_banner_type: "simple",
+            consent_type: "express",
+            palette: "light",
+            language: "en",
+            page_load_consent_levels: ["strictly-necessary"],
+            notice_banner_reject_button_hide: false,
+            preferences_center_close_button_hide: false,
+            page_refresh_confirmation_buttons: false,
+            website_name: "Performance Course",
+          });
+        } else {
+          console.error("cookieconsent library not loaded");
+        }
+      }
     </script>
   </head>
 
@@ -141,7 +107,14 @@
             <li><a href="about.html">About us</a></li>
             <li><a href="index.html#best-sellers-section">Best Sellers</a></li>
             <li><a href="index.html#newsletter-section">Newsletter</a></li>
-            <li class="menu-icon"><img src="images/menu_icon.png" /></li>
+            <li class="menu-icon">
+              <img
+                src="images/menu_icon.webp"
+                alt="menu"
+                width="48"
+                height="34"
+              />
+            </li>
           </ul>
         </nav>
       </div>
@@ -150,24 +123,18 @@
     <section class="hero">
       <picture>
         <source
-          media="(min-width: 960px)"
+          media="(min-width: 1024px)"
           srcset="images/Hero_Desktop.webp"
           type="image/webp"
         />
-        <source media="(min-width: 960px)" srcset="images/Hero_Desktop.jpg" />
         <source
-          media="(min-width: 576px)"
+          media="(min-width: 768px)"
           srcset="images/Hero_Tablet.webp"
           type="image/webp"
         />
-        <source media="(min-width: 576px)" srcset="images/Hero_Tablet.jpg" />
-        <source srcset="images/Hero_Mobile.webp" type="image/webp" />
         <img
-          class="desktop"
-          src="images/Hero_Mobile.jpg"
-          alt="Discover our line of VR Headsets"
-          loading="eager"
-          fetchpriority="high"
+          src="images/Hero_Mobile.webp"
+          alt="VR Headsets Hero Image"
           width="1440"
           height="600"
         />
@@ -194,17 +161,11 @@
         <div class="container">
           <div class="product new">
             <div class="product-picture">
-              <picture>
-                <source srcset="images/vr1.webp" type="image/webp" />
-                <img
-                  src="images/vr1.jpg"
-                  alt="Apple Headset"
-                  loading="eager"
-                  fetchpriority="high"
-                  width="250"
-                  height="250"
-                />
-              </picture>
+              <img
+                src="images/vr1.webp"
+                width="128"
+                alt="product: Penom Case"
+              />
             </div>
             <div class="product-info">
               <h5 class="categories">Headsets, Apple</h5>
@@ -218,17 +179,11 @@
 
           <div class="product new">
             <div class="product-picture">
-              <picture>
-                <source srcset="images/vr2.webp" type="image/webp" />
-                <img
-                  src="images/vr2.jpg"
-                  alt="Playstation Headset"
-                  loading="eager"
-                  fetchpriority="high"
-                  width="250"
-                  height="250"
-                />
-              </picture>
+              <img
+                src="images/vr2.webp"
+                width="128"
+                alt="product: Noise Cancelling Headphone"
+              />
             </div>
             <div class="product-info">
               <h5 class="categories">Headsets, PS</h5>
@@ -242,17 +197,11 @@
 
           <div class="product">
             <div class="product-picture">
-              <picture>
-                <source srcset="images/vr3.webp" type="image/webp" />
-                <img
-                  src="images/vr3.jpg"
-                  alt="Oculus Headset"
-                  loading="eager"
-                  fetchpriority="high"
-                  width="250"
-                  height="250"
-                />
-              </picture>
+              <img
+                src="images/vr3.webp"
+                width="128"
+                alt="product: Canon Digital SLR EOS Rebel T6"
+              />
             </div>
             <div class="product-info">
               <h5 class="categories">Headsets, Oculus</h5>
