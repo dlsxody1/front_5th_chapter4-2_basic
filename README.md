@@ -173,23 +173,6 @@ Cookie Consent
 - **preload 적용**: 폰트를 높은 우선순위 리소스로 변경
 - **결과**: HTML 파싱과 동시에 폰트 다운로드 시작
 
-#### 논블로킹 로딩 전략
-
-- **onload 트릭**: 다운로드 완료 후 자동으로 스타일시트 적용
-- **this.onload=null**: 메모리 누수 방지
-- **렌더링 차단 없음**: HTML 파싱을 중단시키지 않음
-
-### 비동기 폰트로딩
-
-```html
-<noscript>
-  <link
-    rel="stylesheet"
-    href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;600;700&display=swap"
-  />
-</noscript>
-```
-
 #### JavaScript 비활성화 대응
 
 - **프리로드 한계**: JavaScript 기반 로딩 방식
@@ -202,52 +185,12 @@ Cookie Consent
 - **향상된 경험**: JavaScript 활성화 시 최적화된 로딩
 - **안정성**: 모든 환경에서 일관된 폰트 표시
 
-### 시스템폰트 Fallback
+## Before vs After
 
-```html
-body { font-family: 'Heebo', -apple-system, BlinkMacSystemFont, 'Segoe UI',
-Roboto, Helvetica, Arial, sans-serif; font-display: swap; }
-```
-
-🔍 FOIT란?
-**FOIT (Flash of Invisible Text)**는 웹폰트 로딩 중에 텍스트가 완전히 보이지 않는 현상을 말합니다.
-
-#### 즉시 텍스트 표시
-
-- **FOIT 완전 제거**: 폰트 로딩 지연 시에도 텍스트 표시
-- **0ms 렌더링**: 시스템 폰트는 즉시 사용 가능
-- **사용자 경험**: 기다림 없는 콘텐츠 소비
-
-#### 플랫폼별 최적화
-
-- **-apple-system**: macOS/iOS 시스템 폰트 (San Francisco)
-- **BlinkMacSystemFont**: 크롬 macOS용 시스템 폰트
-- **Segoe UI**: Windows 10/11 기본 폰트
-- **Roboto**: Android 기본 폰트
-- **범용 fallback**: Helvetica, Arial, sans-serif
-
-### 폰트 로딩 감지 및 FOIT 방지
-
-```javascript
-if ("fonts" in document) {
-  document.fonts.ready.then(function () {
-    document.documentElement.classList.add("fonts-loaded");
-  });
-}
-
-setTimeout(function () {
-  document.documentElement.classList.add("fonts-loaded");
-}, 3000);
-```
-
-#### Font Loading API 활용
-
-- **정확한 감지**: 폰트 로딩 완료 시점을 정확히 파악
-- **상태 관리**: 폰트 로딩 상태에 따른 스타일 적용 가능
-- **Progressive Enhancement**: 점진적으로 타이포그래피 품질 향상
-
-#### 브라우저 호환성 체크
-
-- **if ('fonts' in document)**: Font Loading API 지원 여부 확인
-- **feature detection**: 지원하지 않는 브라우저에서 오류 방지
-- **graceful degradation**: API 미지원 시에도 정상 동작
+| 카테고리       | Before | After  | 개선 |
+| -------------- | ------ | ------ | ---- |
+| Performance    | 72% 🟠 | 93% 🟢 | +21% |
+| Accessibility  | 82% 🟠 | 95% 🟢 | +13% |
+| Best Practices | 75% 🟠 | 75% 🟠 | 0%   |
+| SEO            | 82% 🟠 | 91% 🟢 | +9%  |
+| PWA            | 0% 🔴  | 0% 🔴  | 0%   |
